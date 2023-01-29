@@ -85,8 +85,16 @@ app.post('/registration', async (req, res) => {
 })
 app.get('/login', async (req, res) => {
     try {
-        const userData = await newUser.save();
-        res.status(201).send(userData);
+        const user = await User.findOne({
+            email: { $eq: req.body.email },
+            password: { $eq: req.body.password }
+        });
+        if (user) {
+
+            res.status(201).send(user);
+        } else {
+            res.status(401).send({ message: "Unauthorized Access" })
+        }
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
