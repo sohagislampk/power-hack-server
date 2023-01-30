@@ -37,7 +37,6 @@ const usersSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    image: String,
     createdAt: {
         type: Date,
         default: Date.now
@@ -77,8 +76,14 @@ app.post('/registration', async (req, res) => {
             password: req.body.password,
             image: req.body.image
         })
-        const userData = await newUser.save();
-        res.status(201).send(userData);
+        const userEmail = await User.findOne({ email: { $eq: req.body.email } })
+        if (userEmail) {
+            res.send({ message: "User already exist" })
+        } else {
+            const userData = await newUser.save();
+            res.status(201).send(userData);
+
+        }
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
@@ -86,8 +91,8 @@ app.post('/registration', async (req, res) => {
 app.get('/login', async (req, res) => {
     try {
         const user = await User.findOne({
-            email: { $eq: req.body.email },
-            password: { $eq: req.body.password }
+            email: { $eq: req.query.email },
+            password: { $eq: req.query.password }
         });
         if (user) {
 
